@@ -1,13 +1,13 @@
-# Workshop Azure AI Foundry — BCI
+# Workshop Microsoft Foundry — BCI
 
 ## Construyendo una Mesa de Ayuda IT con Agentes Multi-Especialista
 
 > **Cliente:** Banco de Crédito e Inversiones (BCI)
 > **Audiencia:** AI Center of Excellence + Arquitectos IT
 > **Duración:** 2 horas
-> **Formato:** Hands-on en el portal de Azure AI Foundry
+> **Formato:** Hands-on en el portal de Microsoft Foundry
 > **Plataforma:** [https://ai.azure.com](https://ai.azure.com)
-> **Versión:** 6.0 — Mayo 2026
+> **Versión:** 7.0 — Mayo 2026
 
 ---
 
@@ -16,7 +16,7 @@
 1. [Antes de empezar](#antes-de-empezar)
 2. [Arquitectura del workshop](#arquitectura-del-workshop)
 3. [Bloque 0 — Contexto y arquitectura (15 min)](#bloque-0--contexto-y-arquitectura)
-4. [LAB 1 — Crear tu propio recurso y proyecto Azure AI Foundry (10 min)](#lab-1--crear-tu-propio-recurso-y-proyecto-azure-ai-foundry)
+4. [LAB 1 — Crear tu propio recurso y proyecto Microsoft Foundry (10 min)](#lab-1--crear-tu-propio-recurso-y-proyecto-microsoft-foundry)
 5. [LAB 2 — Agente de Incidentes con Knowledge (30 min)](#lab-2--agente-de-incidentes-con-knowledge)
 6. [LAB 3 — Agente de Requerimientos (10 min)](#lab-3--agente-de-requerimientos)
 7. [LAB 4 — Agente de Triage (15 min)](#lab-4--agente-de-triage)
@@ -63,7 +63,7 @@ Vas a armar una **Mesa de Ayuda IT virtual** para BCI con 4 agentes coordinados:
 
 | # | Agente | Rol | Modelo | Tools |
 |---|--------|-----|--------|-------|
-| 1 | **Incidentes** | Resuelve problemas usando bases de conocimiento | gpt-4.1 | SharePoint, Knowledge Base MCP, Web Search, MCP create_incident |
+| 1 | **Incidentes** | Resuelve problemas usando bases de conocimiento | gpt-4.1 | Knowledge Base MCP (KB-SEC), Web Search, MCP create_incident |
 | 2 | **Requerimientos** | Captura y registra solicitudes nuevas | gpt-4.1-mini | MCP create_request |
 | 3 | **Triage** | Recibe al usuario y clasifica si es incidente o requerimiento | gpt-4.1 | — |
 | 4 | **Workflow** | Orquesta los 3 agentes anteriores con Power Fx | — (workflow declarativo) | — |
@@ -84,7 +84,7 @@ Más:
 
 > 📱 **Importante sobre MFA.** El ambiente de laboratorio tiene MFA forzado a nivel de tenant y no es posible desactivarlo. La primera vez que ingreses al portal con la cuenta del workshop te pedirá registrar un método de segundo factor. Microsoft Authenticator es el más rápido (notificación push). Si no lo tienes instalado, vas a perder los primeros minutos del workshop configurándolo.
 
-> 🆕 **Novedad — Nuevo Azure AI Foundry (desde noviembre de 2025).** A diferencia del modelo anterior (Azure AI Studio + Hub), el nuevo Foundry **ya no requiere un Hub central**. Cada participante crea su propio recurso `Microsoft.CognitiveServices/accounts` de tipo Foundry y dentro un proyecto. La estructura es plana: recurso → proyecto. Las conexiones, deployments, agentes y evaluations viven en el proyecto, no se heredan de un Hub.
+> 🆕 **Microsoft Foundry (nuevo portal, desde noviembre 2025).** A diferencia del modelo anterior (Azure AI Studio + Hub), Microsoft Foundry **ya no requiere un Hub central**. Cada participante crea su propio recurso `Microsoft.CognitiveServices/accounts` de tipo Foundry y dentro un proyecto. La estructura es plana: recurso → proyecto. El portal se organiza en cinco secciones superiores: **Home, Discover, Build, Operate y Docs** — cada una con su propio panel lateral. Las conexiones, deployments, agentes y evaluations viven en el proyecto bajo la sección **Build**.
 
 ---
 
@@ -95,7 +95,6 @@ Más:
 │        Pre-desplegado por el instructor (compartido)                 │
 │                                                                      │
 │   AI Search ─── KB-SEC indexada ─── Knowledge Base MCP             │
-│   SharePoint ─── KB-IT cargada                                      │
 │   Function Apps ─── MCP Incidents + MCP Requirements                │
 │   API Management + Storage                                          │
 │                                                                      │
@@ -105,7 +104,7 @@ Más:
                               │  consumido vía conexiones
                               ▼
 ┌────────────────────────────────────────────────────────────────────┐
-│     Tu propio recurso Azure AI Foundry (nuevo modelo, sin Hub)      │
+│     Tu propio recurso Microsoft Foundry (nuevo modelo, sin Hub)      │
 │                                                                      │
 │   • Recurso Foundry  +  Proyecto                                     │
 │   • Tus deployments: gpt-4.1, gpt-4.1-mini, text-embedding-3-large   │
@@ -115,7 +114,7 @@ Más:
 │                                                                      │
 │   ① Incidents ──▶ ② Requirements ──▶ ③ Triage ──▶ ④ Workflow      │
 │   (gpt-4.1)       (gpt-4.1-mini)     (gpt-4.1)    (Power Fx)       │
-│   + 4 tools       + 1 tool           + sin tools  + orquesta        │
+│   + 3 tools       + 1 tool           + sin tools  + orquesta        │
 │                                                                      │
 │   El flujo de runtime queda así — el Workflow es el punto de         │
 │   entrada y orquesta a los otros 3 agentes:                          │
@@ -177,39 +176,40 @@ Imagina la mesa de ayuda IT de BCI: **~14.000 empleados** distribuidos a lo larg
 
 Mezclarlos rompe la experiencia: un usuario con la VPN caída no quiere completar un formulario. Un usuario que pide un mouse nuevo no quiere que lo "diagnostiquen".
 
-### Tour del portal Azure AI Foundry
+### Tour del portal Microsoft Foundry
 
 El instructor abrirá [https://ai.azure.com](https://ai.azure.com) y mostrará:
 
 1. **Foundry resource** → El nuevo recurso unificado (sin Hub). Cada participante creará el suyo.
 2. **Project** → Espacio de trabajo dentro del recurso donde viven agentes, conexiones, deployments y evaluations.
-3. **Agents** → Pestaña donde vamos a crear los 4 agentes.
-4. **Connections** → Las conexiones que cada uno crea hacia los recursos compartidos (SharePoint, KB MCP, Web Search, MCPs).
-5. **Models + Endpoints** → Los deployments que cada uno crea (gpt-4.1, gpt-4.1-mini, embeddings).
-6. **Evaluation** → Donde armaremos el LAB 7.
+3. **Build → Agents** → Sección donde vamos a crear los 4 agentes.
+4. **Build → Models** → Los deployments que cada uno crea (gpt-4.1, gpt-4.1-mini, embeddings).
+5. **Operate → Admin → [proyecto] → Connections** → Las conexiones hacia los recursos compartidos (KB MCP, Web Search, MCPs).
+6. **Build → Evaluations** → Donde armaremos el LAB 8.
+7. **Operate → Compliance** → Guardrails del LAB 7.
 
-> 🆕 **El nuevo Azure AI Foundry (Nov 2025).** Antes había dos conceptos separados: AI Studio + Hub para infraestructura compartida, y Project para el trabajo. Ahora el "Foundry resource" es un único recurso de Azure (`Microsoft.CognitiveServices/accounts`, kind=AIServices) que contiene proyectos. **Sin Hub**. Más simple, más self-service: cada equipo o cada persona puede tener el suyo.
+> 🆕 **Microsoft Foundry — nuevo portal.** Antes había dos conceptos separados: AI Studio + Hub para infraestructura compartida, y Project para el trabajo. Ahora el "Foundry resource" es un único recurso de Azure (`Microsoft.CognitiveServices/accounts`, kind=AIServices) que contiene proyectos. **Sin Hub**. El portal se organiza en cinco secciones de navegación superior: **Home, Discover, Build, Operate y Docs** — cada una con su propio panel lateral. La URL sigue siendo [https://ai.azure.com](https://ai.azure.com).
 
 **🎯 Objetivo del bloque:** entender qué pieza construyes tú y cuál ya está hecha, y por qué arrancamos por Incidentes.
 
 ---
 
-## LAB 1 — Crear tu propio recurso y proyecto Azure AI Foundry
+## LAB 1 — Crear tu propio recurso y proyecto Microsoft Foundry
 
 > **Tiempo:** 0:15 – 0:25 (10 min)
-> **Objetivo:** Crear tu propio recurso Azure AI Foundry y un proyecto dentro de él, y desplegar los 3 modelos que vas a usar. Las conexiones a los recursos compartidos las iremos creando inline dentro de los siguientes LABs, a medida que cada agente las necesite.
+> **Objetivo:** Crear tu propio recurso Microsoft Foundry y un proyecto dentro de él, y desplegar los 3 modelos que vas a usar. Las conexiones a los recursos compartidos las iremos creando inline dentro de los siguientes LABs, a medida que cada agente las necesite.
 
 ### Por qué cada uno crea su propio proyecto
 
 Antes (modelo Hub), una organización montaba un Hub central y cada equipo creaba proyectos hijos que heredaban configuración. Era complejo de administrar y limitaba el self-service.
 
-Con el nuevo Foundry (Nov 2025), **cada participante crea su propio recurso de Foundry** y dentro su proyecto. Esto refleja mejor cómo se va a usar Foundry en producción: un equipo de aplicación tiene su recurso, despliega los modelos que necesita, gestiona sus conexiones y agentes. Sin dependencias jerárquicas.
+Con el nuevo Microsoft Foundry, **cada participante crea su propio recurso de Foundry** y dentro su proyecto. Esto refleja mejor cómo se va a usar Foundry en producción: un equipo de aplicación tiene su recurso, despliega los modelos que necesita, gestiona sus conexiones y agentes. Sin dependencias jerárquicas.
 
 ### Pre-requisitos
 
 - Acceso a la suscripción del workshop (provista por el instructor).
-- Permiso `Azure AI Account Owner` en el resource group `rg-bci-workshop-participants` (o el que el instructor te indique). Este es el rol del nuevo Azure AI Foundry que permite crear el recurso, el proyecto y administrar deployments y conexiones.
-- **Handout del instructor** con: URLs y API keys de los recursos compartidos (AI Search, MCPs, SharePoint site, Bing).
+- Permiso `Azure AI Account Owner` en el resource group `rg-bci-workshop-participants` (o el que el instructor te indique). Este es el rol de Microsoft Foundry que permite crear el recurso, el proyecto y administrar deployments y conexiones.
+- **Handout del instructor** con: URLs y API keys de los recursos compartidos (AI Search, MCPs, Bing).
 
 ### Paso 1.1 — Acceder al portal
 
@@ -218,10 +218,10 @@ Con el nuevo Foundry (Nov 2025), **cada participante crea su propio recurso de F
 3. **Validación de 2 pasos (MFA).** El tenant del laboratorio tiene MFA forzado y no se puede deshabilitar. Si es tu primer ingreso, el portal te va a pedir registrar un segundo factor. Usa **Microsoft Authenticator** (que ya deberías tener instalado en tu celular según los requisitos): escanea el QR que aparece en pantalla y aprueba la notificación push. En los siguientes ingresos solo te llegará una notificación al teléfono.
 4. En el dropdown superior, asegúrate de estar en el tenant correcto (el del workshop, no tu cuenta personal de BCI).
 
-### Paso 1.2 — Crear tu recurso Azure AI Foundry
+### Paso 1.2 — Crear tu recurso Microsoft Foundry
 
-1. En el portal, haz clic en **"+ Create new"** (esquina superior izquierda).
-2. Selecciona **"Azure AI Foundry resource"** (NO elijas "Hub" — el modelo viejo).
+1. En el portal, haz clic en **"+ Create"** en la página de inicio (sección **Home**).
+2. Selecciona **"Foundry resource"** en el catálogo de recursos.
 3. En el formulario:
    - **Resource name:** `foundry-helpdesk-<tus-iniciales>` (ej: `foundry-helpdesk-pv`)
    - **Subscription:** la del workshop.
@@ -246,7 +246,7 @@ Con el nuevo Foundry (Nov 2025), **cada participante crea su propio recurso de F
 
 Dentro del proyecto:
 
-1. Menú lateral → **"Models + endpoints"** → **"+ Deploy model"** → **"Deploy base model"**.
+1. En la sección **Build** (navegación superior) → **Models** (panel lateral) → **"+ Deploy model"** → **"Deploy base model"**.
 2. Repite para cada uno de los 3 modelos:
 
 | Modelo a buscar | Deployment name | Capacidad |
@@ -265,7 +265,7 @@ Dentro del proyecto:
 
 ### Sobre las conexiones a los recursos compartidos
 
-Las **conexiones** le dicen al proyecto **dónde están** los recursos compartidos del workshop (SharePoint, AI Search, Bing, Function Apps con MCPs). En esta versión del manual **no las creamos todas de una vez** — las vamos a crear **inline, dentro del LAB de cada agente, en el momento que la herramienta correspondiente las necesite**. Esto refleja mejor cómo se hace en proyectos reales: una conexión se crea cuando hay un agente que la va a consumir, no antes.
+Las **conexiones** le dicen al proyecto **dónde están** los recursos compartidos del workshop (AI Search, Bing, Function Apps con MCPs). En esta versión del manual **no las creamos todas de una vez** — las vamos a crear **inline, dentro del LAB de cada agente, en el momento que la herramienta correspondiente las necesite**. Esto refleja mejor cómo se hace en proyectos reales: una conexión se crea cuando hay un agente que la va a consumir, no antes.
 
 > 💡 Mantén a mano el handout del instructor (`workshop-handout.md`) con las URLs y API keys — lo vas a abrir varias veces durante los LABs 2 y 3.
 
@@ -279,8 +279,8 @@ Las **conexiones** le dicen al proyecto **dónde están** los recursos compartid
 
 | Síntoma | Solución |
 |---------|----------|
-| "No tengo permisos para crear el recurso" | Pídele al instructor que te asigne `Azure AI Account Owner` en el resource group del workshop. Este es el rol correcto para el nuevo Azure AI Foundry. |
-| "Veo solo la opción de Hub, no la de Foundry resource" | Cambia al portal nuevo en [https://ai.azure.com](https://ai.azure.com). Si persiste, refresca con Ctrl+F5 o borra caché. |
+| "No tengo permisos para crear el recurso" | Pídele al instructor que te asigne `Azure AI Account Owner` en el resource group del workshop. |
+| "Veo opciones de Hub o AI Studio" | Activa el toggle **"New Foundry"** en el banner superior del portal. Refresca con Ctrl+F5 si persiste. |
 | "El modelo no está disponible en la región" | Cambia a la región que el instructor indique (típicamente `East US 2` o `Sweden Central`). |
 
 ---
@@ -298,14 +298,14 @@ Cuando el área de IT te pide que arranques con agentes, no empiezas por el orqu
 |------|---------------------------|
 | **Modelo** | `gpt-4.1` por razonamiento conversacional + uso de tools |
 | **Prompt** | Define el rol, el proceso, las reglas de citación y la matriz de prioridad |
-| **Tools** | 4 herramientas: SharePoint, KB MCP, Web Search, MCP create_incident |
-| **Knowledge** | Dos KBs distintas — KB-IT (SharePoint) y KB-SEC (AI Search con Agentic Retrieval) |
+| **Tools** | 3 herramientas: Knowledge Base MCP (KB-SEC), Web Search, MCP create_incident |
+| **Knowledge** | KB-SEC — artículos de ciberseguridad en Azure AI Search con Agentic Retrieval |
 
-Vamos despacio, tiene 6 sub-pasos.
+Vamos despacio, tiene 5 sub-pasos.
 
 ### Paso 2.1 — Crear el agente base
 
-1. En **"Agents"** → **"+ New agent"** → **"Prompt agent"**.
+1. En **Build → Agents** → **"+ New agent"** → **"Prompt agent"**.
 2. Configura:
    - **Agent name:** `helpdesk-incidents`
    - **Display name:** `BCI Helpdesk - Especialista en Incidentes`
@@ -326,13 +326,11 @@ algo no funciona como debería. Tu objetivo es ayudarlo a resolverlo.
 Saluda brevemente y pide al usuario que te describa qué está pasando. Si necesitas un
 dato puntual para diagnosticar, haz UNA pregunta adicional. No más.
 
-### Paso 2 — Consultar las bases de conocimiento
-Tienes acceso a DOS bases de conocimiento:
-- SharePoint (KB-IT): artículos de soporte IT general — VPN, red, hardware, impresoras,
-  contraseñas, accesos, renovación de equipo, onboarding, apps corporativas.
-- Knowledge Base MCP (KB-SEC): artículos de ciberseguridad vía Agentic Retrieval —
+### Paso 2 — Consultar la base de conocimiento
+Tienes acceso a una base de conocimiento interna:
+- Knowledge Base (KB-SEC): artículos de ciberseguridad vía Agentic Retrieval —
   phishing, malware/ransomware, política BYOD, clasificación de datos, backup/recuperación,
-  seguridad en redes WiFi. Usá la herramienta knowledge_base_retrieve.
+  seguridad en redes WiFi.
 
 ### Paso 3 — Complementar con web search si es necesario
 Si la KB interna no tiene información suficiente, consultá la web.
@@ -353,7 +351,7 @@ create_incident.
 
 ## Reglas de comportamiento
 1. Nunca inventes soluciones. Si no sabes, dilo y ofrecé escalar.
-2. Cita siempre tus fuentes (KB-IT-NNN, KB-SEC-NNN, o URL web).
+2. Cita siempre tus fuentes (KB-SEC-NNN, o URL web).
 3. Nunca crees un ticket sin confirmación explícita del usuario.
 4. Sé empático: el usuario tiene un problema y está bloqueado.
 5. Al crear un ticket, comunicá: ID del ticket, ejecutivo asignado, SLA estimado.
@@ -364,38 +362,9 @@ create_incident.
 
 > 💡 **Prueba ahora con el agente "vacío"** (sin tools). Pásale `No me puedo conectar a la VPN`. Vas a ver que **alucina**: inventa pasos, no cita fuentes. Es el momento perfecto para mostrarle a tu cliente el "antes y después" de agregar grounding. Cierra el playground y seguimos.
 
-### Paso 2.2 — Agregar SharePoint Grounding (KB-IT)
+### Paso 2.2 — Agregar Knowledge Base (KB-SEC vía Foundry IQ)
 
-Esta es la primera fuente de conocimiento. SharePoint Grounding es **nativo de Foundry** — indexa el contenido del SharePoint sin que tengas que armar pipelines ETL.
-
-#### 2.2.a — Primero, crear la conexión a SharePoint
-
-> 🔗 **Esta es la primera conexión que creas en el workshop.** Vamos a hacerlo desde el flujo del agente: cuando agregues la tool, el portal te ofrece crear la conexión en el mismo paso. Si preferís hacerla por separado, podés ir a **Management center → Connected resources → + New connection**. La configuración es la misma:
-
-| Campo | Valor |
-|-------|-------|
-| **Type** | `SharePoint` |
-| **Name** | `bci-sharepoint` |
-| **Site URL** | la del handout del instructor (formato `https://<tenant>.sharepoint.com/sites/bci-helpdesk-kb`) |
-| **Authentication** | `On-behalf-of (OBO)` o el método que el instructor indique |
-
-#### 2.2.b — Agregar la tool al agente
-
-1. Dentro del agente, anda a la pestaña **"Tools"**.
-2. Haz clic en **"+ Add tool"**.
-3. Selecciona **"SharePoint"** del catálogo de herramientas.
-4. Configuración:
-   - **Connection:** selecciona `bci-sharepoint` (la que acabás de crear). Si todavía no la creaste, el portal tiene un botón **"+ New connection"** acá mismo — usá los valores de la tabla de arriba.
-   - **Description:** `Base de conocimiento IT interna de BCI en SharePoint (KB-IT)`.
-   - **Site URL:** automático desde la conexión.
-5. Haz clic en **"Add"**.
-6. **Guarda y prueba** otra vez con `No me puedo conectar a la VPN`. Ahora debería citar `KB-IT-001-VPN`.
-
-> 🐛 **Si la conexión falla con 401:** verificá el método de autenticación. Para el workshop suele ser OBO con la cuenta del participante.
-
-### Paso 2.3 — Agregar Knowledge Base (KB-SEC vía Foundry IQ)
-
-Esta es la segunda KB, pero técnicamente muy distinta: en lugar de SharePoint, vamos a **conectar al agente con un Foundry IQ** que ya tiene indexada en Azure AI Search la documentación de ciberseguridad de BCI (KB-SEC).
+Vamos a conectar al agente con **Foundry IQ** — un índice Azure AI Search que tiene indexada la documentación de ciberseguridad de BCI (KB-SEC).
 
 > ✋ **Pausa — demo guiada por el instructor.**
 > Antes de seguir con la configuración del agente, **detente acá y espera al instructor**. En esta parte se hace una demo en vivo de cómo se indexa el contenido de la KB-SEC en **Azure AI Search**: ingesta de documentos, chunking, embeddings con `text-embedding-3-large`, creación del índice y publicación como **Knowledge Base de Foundry IQ** (Agentic Retrieval). El instructor te va a mostrar el recurso de AI Search central del workshop, cómo está configurado el índice y cómo se expone como Knowledge Base consumible por cualquier proyecto de Foundry.
@@ -405,9 +374,10 @@ Esta es la segunda KB, pero técnicamente muy distinta: en lugar de SharePoint, 
 
 Una vez que el instructor termine la demo, vamos a **establecer una conexión desde tu proyecto de Foundry hacia el Foundry IQ central del workshop**, referenciando el AI Search compartido (no creas uno propio — todos los participantes apuntan al mismo recurso).
 
-#### 2.3.a — Crear la conexión a Foundry IQ (AI Search central del workshop)
+#### 2.2.a — Crear la conexión a Foundry IQ (AI Search central del workshop)
 
-1. En tu proyecto, anda a **Management center → Connections → "+ New connection"**.
+1. En tu proyecto, selecciona **Operate** en la navegación superior → **Admin** → selecciona tu proyecto → **Connections → "+ New connection"**.
+   > Alternativa rápida: al agregar la tool en el paso siguiente, el portal ofrece el botón **"+ New connection"** inline.
 2. Elegí el tipo **"Azure AI Search"** (también puede aparecer como "Foundry IQ / Knowledge").
 3. Configuración (los valores exactos los entrega el instructor en el handout):
 
@@ -420,7 +390,7 @@ Una vez que el instructor termine la demo, vamos a **establecer una conexión de
 
 > ℹ️ **Importante:** todos los participantes nos conectamos al **mismo** AI Search y al **mismo** Knowledge Base. No creas tu propio índice — eso lo vimos en la demo del instructor con fines didácticos.
 
-#### 2.3.b — Agregar la Knowledge Base como tool del agente
+#### 2.2.b — Agregar la Knowledge Base como tool del agente
 
 1. Volvé al agente de Incidentes y entrá a la pestaña **"Knowledge"** (o **"Tools" → "+ Add knowledge"** según la vista del portal).
 2. Seleccioná **"Foundry IQ / Azure AI Search"**.
@@ -431,11 +401,11 @@ Una vez que el instructor termine la demo, vamos a **establecer una conexión de
 
 7. **Probá** con `Recibí un mail sospechoso del banco y creo que hice clic en un link`. El agente debería consultar Foundry IQ, encontrar `KB-SEC-001-Phishing`, y guiar al usuario (desconectar red, cambiar contraseñas, reportar).
 
-### Paso 2.4 — Agregar Web Search
+### Paso 2.3 — Agregar Web Search
 
-Cobertura para casos que escapan a las KBs internas.
+Cobertura para casos que escapan a la KB interna.
 
-#### 2.4.a — Crear la conexión a Bing Web Search
+#### 2.3.a — Crear la conexión a Bing Web Search
 
 | Campo | Valor |
 |-------|-------|
@@ -443,7 +413,7 @@ Cobertura para casos que escapan a las KBs internas.
 | **Name** | `bci-web-search` |
 | **API key** | la del handout del instructor |
 
-#### 2.4.b — Agregar la tool al agente
+#### 2.3.b — Agregar la tool al agente
 
 1. Haz clic en **"+ Add tool"**.
 2. Selecciona **"Web Search (Bing Grounding)"**.
@@ -451,13 +421,13 @@ Cobertura para casos que escapan a las KBs internas.
    - **Connection:** `bci-web-search` (la que acabás de crear). Si no, usá el **"+ New connection"** con los valores de la tabla de arriba.
    - **Description:** `Búsqueda web para información técnica complementaria.`
 4. Haz clic en **"Add"**.
-5. **Prueba** con `¿Cómo configuro 2FA en GitHub Enterprise?`. Como no está en KB-IT ni KB-SEC, debería recurrir a Web Search.
+5. **Prueba** con `¿Cómo configuro 2FA en GitHub Enterprise?`. Como no está en KB-SEC, debería recurrir a Web Search.
 
-### Paso 2.5 — Agregar MCP create_incident
+### Paso 2.4 — Agregar MCP create_incident
 
 Última tool: la **acción**. El agente no solo informa — también puede crear el ticket si el incidente no se pudo resolver.
 
-#### 2.5.a — Crear la conexión al MCP de Incidents
+#### 2.4.a — Crear la conexión al MCP de Incidents
 
 El MCP de Incidents está expuesto detrás de **Azure API Management (APIM)**. La autenticación se hace con un header de subscription key.
 
@@ -469,7 +439,7 @@ El MCP de Incidents está expuesto detrás de **Azure API Management (APIM)**. L
 | **Key (header name)** | `Ocp-Apim-Subscription-Key` |
 | **Value** | `93b0ee5328e3407ba01ff4c6a9b4ba7c` |
 
-#### 2.5.b — Agregar la tool al agente
+#### 2.4.b — Agregar la tool al agente
 
 1. Haz clic en **"+ Add tool"**.
 2. Selecciona **"Model Context Protocol (MCP)"**.
@@ -491,7 +461,7 @@ El MCP de Incidents está expuesto detrás de **Azure API Management (APIM)**. L
 
 > 🛡️ **Por qué `Always` y no `Never`:** crear un ticket es una acción irreversible que genera carga en el equipo de soporte humano. `require_approval: always` hace que el portal pida confirmación explícita antes de ejecutar la tool. Es la barandilla de "human in the loop".
 
-### Paso 2.6 — Prueba end-to-end
+### Paso 2.5 — Prueba end-to-end
 
 1. Haz clic en **"Save"**.
 2. Anda a **"Try in playground"**.
@@ -499,10 +469,9 @@ El MCP de Incidents está expuesto detrás de **Azure API Management (APIM)**. L
 
 | Escenario | Input | Resultado esperado |
 |-----------|-------|--------------------|
-| **KB-IT (SharePoint)** | `No me puedo conectar a la VPN` | Busca en SharePoint, encuentra `KB-IT-001-VPN`, presenta los pasos numerados, cita la fuente |
-| **KB-SEC (Agentic Retrieval)** | `Recibí un mail sospechoso del banco y creo que hice clic en un link` | Llama a `knowledge_base_retrieve`, encuentra `KB-SEC-001-Phishing`, guía al usuario (desconectar red, cambiar contraseñas, reportar) |
-| **Web Search** | `¿Cómo configuro 2FA en GitHub Enterprise?` | Como no está en KB-IT ni KB-SEC, recurre a Web Search |
-| **Crear ticket** | `Probé los pasos pero la VPN sigue sin conectar` → seguir el diálogo hasta que el agente ofrezca crear ticket → confirmar | Pide confirmación, llama a `create_incident`, devuelve ID `INC-YYYYMMDD-XXXXXX`, ejecutivo y SLA |
+| **KB-SEC (Agentic Retrieval)** | `Recibí un mail sospechoso del banco y creo que hice clic en un link` | Llama a la KB, encuentra `KB-SEC-001-Phishing`, guía al usuario (desconectar red, cambiar contraseñas, reportar) |
+| **Web Search** | `¿Cómo configuro 2FA en GitHub Enterprise?` | Como no está en KB-SEC, recurre a Web Search |
+| **Crear ticket** | `Mi equipo sigue teniendo un problema de seguridad, no lo pude resolver` → seguir el diálogo hasta que el agente ofrezca crear ticket → confirmar | Pide confirmación, llama a `create_incident`, devuelve ID `INC-YYYYMMDD-XXXXXX`, ejecutivo y SLA |
 
 ### ✅ Criterio de éxito
 
@@ -515,19 +484,15 @@ El MCP de Incidents está expuesto detrás de **Azure API Management (APIM)**. L
 
 | Síntoma | Solución |
 |---------|----------|
-| "No encuentro la conexión `helpdesk-kb-connection`" | Volvé al Paso 2.3.a y creala desde **Management center → Connected resources → + New connection** con los valores de la tabla. |
-| "El agente no encuentra el artículo de phishing" | Prueba reformular: "¿qué hago si abrí un link de phishing?". A veces el query planning del KB MCP necesita una pregunta más explícita. |
+| "El agente no encuentra el artículo de phishing" | Prueba reformular: "¿qué hago si abrí un link de phishing?". A veces el query planning del KB necesita una pregunta más explícita. |
 | "create_incident falla con 401" | El gateway APIM requiere una subscription key. Verificá que la conexión `mcp-incidents` tenga el header `Ocp-Apim-Subscription-Key` con el valor exacto que provee el instructor. |
 
 ### 💡 Puntos de discusión
 
-> **¿Por qué dos KBs distintas?**
-> Cada fuente tiene su naturaleza. SharePoint es contenido vivo que los equipos de IT ya actualizan (no requiere ETL). Los artículos de ciberseguridad son contenido curado de alta precisión que se beneficia de embeddings + búsqueda semántica. Foundry te deja combinar ambas sin problema.
-
 > **¿Cuál es la diferencia entre RAG tradicional y Agentic Retrieval?**
 > En RAG tradicional, tú haces una query, recibes chunks, y el LLM del agente sintetiza. En Agentic Retrieval (Foundry IQ), AI Search **tiene su propio LLM** (`gpt-4.1`) que planifica sub-queries, ejecuta búsqueda híbrida (semántica + vectorial), y devuelve información ya procesada. El agente solo recibe la respuesta final, no chunks crudos.
 
-> **El antes y después de las tools.** Muéstrale al cliente la captura del agente "vacío" (Paso 2.1) vs. el agente con las 4 tools (Paso 2.6). El cambio en la calidad de respuesta es la mejor demo del workshop.
+> **El antes y después de las tools.** Muéstrale al cliente la captura del agente "vacío" (Paso 2.1) vs. el agente con las 3 tools (Paso 2.5). El cambio en la calidad de respuesta es la mejor demo del workshop.
 
 ---
 
@@ -547,13 +512,13 @@ Después de ver lo que hace incidentes, el reflejo es querer copiar la misma est
 | Necesita KB de soluciones | Sí | No |
 | Necesita razonamiento complejo | Sí | No — captura estructurada |
 | Modelo apropiado | `gpt-4.1` | `gpt-4.1-mini` (3x más barato y rápido) |
-| Tools | 4 (KBs + web + crear ticket) | 1 (crear requerimiento) |
+| Tools | 3 (KB-SEC + web + crear ticket) | 1 (crear requerimiento) |
 
 **La lección de diseño**: no copies el agente exitoso — adaptá el modelo y las tools al caso. Un requerimiento es básicamente: **capturar 4 datos, confirmar, registrar**. No requiere búsqueda ni diagnóstico.
 
 ### Paso 3.1 — Crear el agente
 
-1. **"Agents"** → **"+ New agent"** → **"Prompt agent"**.
+1. **Build → Agents** → **"+ New agent"** → **"Prompt agent"**.
 2. Configura:
    - **Agent name:** `helpdesk-requirements`
    - **Display name:** `BCI Helpdesk - Especialista en Requerimientos`
@@ -672,7 +637,7 @@ Es el agente más simple del workshop:
 
 ### Paso 4.1 — Crear el agente
 
-1. En el menú lateral del proyecto → **"Agents"**.
+1. Selecciona **Build** en la navegación superior → **Agents** en el panel lateral.
 2. Haz clic en **"+ New agent"**.
 3. Selecciona **"Prompt agent"** (no "Workflow", todavía).
 4. Configura:
@@ -789,7 +754,7 @@ Hasta ahora creamos **Prompt Agents** (agentes basados en LLM + instructions). U
 
 ### Paso 5.1 — Crear el workflow
 
-1. **"Agents"** → **"+ New agent"** → **"Workflow agent"** (no Prompt).
+1. **Build → Agents** → **"+ New agent"** → **"Workflow agent"** (no Prompt).
 2. Configura:
    - **Agent name:** `helpdesk-workflow`
    - **Description:** `Mesa de Ayuda IT BCI — Workflow principal. Orquesta triage, incidentes y requerimientos.`
@@ -928,7 +893,7 @@ Prueba los 3 caminos:
 
 | Input | Camino esperado | Tiempo total |
 |-------|-----------------|--------------|
-| `No me puedo conectar a la VPN, tengo un cliente esperando` | Triage → ConditionGroup `INCIDENTE` → Incidents → consulta KB-IT-001 | ~10 seg |
+| `No me puedo conectar a la VPN, tengo un cliente esperando` | Triage → ConditionGroup `INCIDENTE` → Incidents → Web Search o KB-SEC si aplica | ~10 seg |
 | `Necesito renovar mi notebook, tiene 4 años` | Triage → ConditionGroup `REQUERIMIENTO` → Requirements | ~8 seg |
 | `Hola tengo una duda` | Triage no puede clasificar → ConditionGroup `elseActions` → Question pide más detalles | ~5 seg |
 
@@ -1077,7 +1042,7 @@ El instructor te asignó un número de participante. **Siempre con dos dígitos*
 
    | Input | Camino esperado |
    |-------|-----------------|
-   | `No me puedo conectar a la VPN` | Triage → Incidents → respuesta con KB-IT-001 |
+   | `No me puedo conectar a la VPN` | Triage → Incidents → Web Search o KB-SEC |
    | `Necesito renovar mi notebook` | Triage → Requirements → captura de datos → REQ-... |
    | `Recibí un mail sospechoso` | Triage → Incidents → KB-SEC-001 |
 
@@ -1134,7 +1099,7 @@ Los Guardrails (basados en **Azure AI Content Safety**) son filtros que se aplic
 
 ### Paso 7.1 — Acceder a Guardrails del proyecto
 
-1. En el menú lateral del proyecto → **"Guardrails + controls"** (o "Safety + security" según versión del portal).
+1. Selecciona **Operate** en la navegación superior → **Compliance** en el panel lateral.
 2. Haz clic en **"+ Create guardrail"**.
 
 ### Paso 7.2 — Configurar las categorías estándar
@@ -1155,7 +1120,7 @@ Configura los siguientes filtros para **input** y **output**:
 
 ### Paso 7.3 — Asociar el guardrail al agente de incidentes
 
-1. Anda a **"Agents"** → **`helpdesk-incidents`** → pestaña **"Guardrails"**.
+1. Anda a **Build → Agents** → **`helpdesk-incidents`** → pestaña **"Guardrails"**.
 2. Selecciona el guardrail que creaste.
 3. **"Save"**.
 
@@ -1212,16 +1177,16 @@ Cada métrica devuelve un score 1–5.
 El instructor te entregará un archivo `eval-dataset.jsonl` con 5 casos pre-armados. Si quieres inspeccionarlo, contiene una estructura como:
 
 ```jsonl
-{"query": "No me puedo conectar a la VPN", "context": "KB-IT-001 explica los pasos de reconexión", "ground_truth": "El usuario debe verificar credenciales, reiniciar el cliente VPN, y si persiste, escalar a Tier 2"}
 {"query": "Recibí un mail sospechoso", "context": "KB-SEC-001 phishing", "ground_truth": "Desconectar red, no clickear más, cambiar contraseñas, reportar a CISO"}
+{"query": "Mi equipo está lento y aparecen ventanas raras", "context": "KB-SEC-002 malware", "ground_truth": "Desconectar de la red, no apagar el equipo, contactar CISO, no usar hasta que lo revisen"}
 {"query": "Necesito renovar mi notebook", "context": "Tipo: renovacion_equipo, SLA 5-15 días", "ground_truth": "Capturar email + justificación, crear REQ con SLA 5-15 días hábiles"}
-{"query": "Mi mouse no anda", "context": "KB-IT-003 hardware", "ground_truth": "Probar otro puerto USB, verificar pilas, si persiste solicitar reemplazo"}
 {"query": "Necesito acceso a T24", "context": "Tipo: acceso_sistema, SLA 1-3 días", "ground_truth": "Capturar email + justificación, crear REQ con SLA 1-3 días"}
+{"query": "¿Puedo conectarme desde un WiFi público?", "context": "KB-SEC-006 WiFi público", "ground_truth": "Usar siempre VPN corporativa, evitar redes abiertas sin VPN, usar datos móviles como alternativa"}
 ```
 
 ### Paso 8.2 — Crear la evaluación
 
-1. En el menú lateral → **"Evaluation"**.
+1. Selecciona **Build** en la navegación superior → **Evaluations** en el panel lateral.
 2. **"+ New evaluation"**.
 3. Configura:
    - **Name:** `eval-helpdesk-incidents-v1`
@@ -1281,8 +1246,8 @@ Mira especialmente:
 | Componente | Estado |
 |-----------|--------|
 | 4 agentes (Incidents, Requirements, Triage, Workflow) | ✅ |
-| 4 tools integradas (SharePoint, KB MCP, Web Search, MCP create_incident) | ✅ |
-| 5 conexiones a recursos compartidos (creadas inline en cada agente) | ✅ |
+| 3 tools integradas (KB-SEC MCP, Web Search, MCP create_incident) | ✅ |
+| 4 conexiones a recursos compartidos (creadas inline en cada agente) | ✅ |
 | Routing condicional con Power Fx | ✅ |
 | Front-end web desplegado en Azure Container Apps | ✅ |
 | Guardrails con Content Safety | ✅ |
@@ -1316,7 +1281,7 @@ Cerramos con **Workflow** para hacer el routing determinístico y barato, y con 
 
 ### Recursos para seguir
 
-- **Documentación**: [https://learn.microsoft.com/en-us/azure/ai-foundry/](https://learn.microsoft.com/en-us/azure/ai-foundry/)
+- **Documentación**: [https://learn.microsoft.com/en-us/azure/foundry/](https://learn.microsoft.com/en-us/azure/foundry/)
 - **Repositorio del workshop**: el código de los MCPs, el script de setup, y los YAMLs de agentes están en el repo `agente_helpdesk_demo` (te lo comparto post-workshop).
 - **Foundry CLI / SDK**: `pip install azure-ai-projects` para automatizar la creación de agentes desde código (lo que hoy hicimos en UI se puede versionar en YAML + script).
 
@@ -1325,20 +1290,6 @@ Cerramos con **Workflow** para hacer el routing determinístico y barato, y con 
 ## Apéndice A — Cheat sheet de frases para probar
 
 Frases listas para lanzar al playground de cada agente.
-
-### Incidentes — KB-IT (SharePoint)
-
-| Para probar... | Frase |
-|----------------|-------|
-| VPN | `No me puedo conectar a la VPN` |
-| Red | `No tengo internet, la red anda muy lenta` |
-| Hardware mouse/teclado | `Mi mouse dejó de funcionar` |
-| App vacaciones | `No puedo cargar mis vacaciones en el sistema` |
-| Portal RRHH | `No puedo acceder al portal de RRHH` |
-| Contraseña | `Se me bloqueó la contraseña` |
-| Impresora | `No puedo imprimir en la impresora del piso 3` |
-| Accesos | `Me sacaron el acceso a la carpeta compartida y lo necesito para trabajar` |
-| Onboarding | `Soy nuevo en BCI y no tengo configurada mi cuenta de correo` |
 
 ### Incidentes — KB-SEC (Agentic Retrieval)
 
@@ -1350,6 +1301,17 @@ Frases listas para lanzar al playground de cada agente.
 | Datos confidenciales | `¿Cómo sé si un documento es confidencial antes de compartirlo?` |
 | Backup | `Borré un archivo importante del servidor, ¿se puede recuperar?` |
 | WiFi público | `Estoy en un café y no sé si es seguro conectarme al WiFi para trabajar` |
+
+### Incidentes — Web Search (complementario)
+
+| Para probar... | Frase |
+|----------------|-------|
+| VPN | `No me puedo conectar a la VPN` |
+| Red | `No tengo internet, la red anda muy lenta` |
+| Hardware | `Mi mouse dejó de funcionar` |
+| App corporativa | `No puedo cargar mis vacaciones en el sistema` |
+| Contraseña | `Se me bloqueó la contraseña` |
+| 2FA externo | `¿Cómo configuro 2FA en GitHub Enterprise?` |
 
 ### Requerimientos
 
@@ -1384,12 +1346,11 @@ Frases listas para lanzar al playground de cada agente.
 | Síntoma | Causa probable | Solución |
 |---------|----------------|----------|
 | **No veo mi recurso o proyecto en el portal** | Se creó en otro tenant o suscripción | Verifica el dropdown superior del tenant. Cambia al del workshop. |
-| **No me deja crear el recurso Foundry** | Falta rol RBAC en el resource group | Pídele al instructor: `Azure AI Account Owner` en `rg-bci-workshop-participants` (rol nativo del nuevo Foundry). |
-| **Veo solo "Hub" como opción de creación** | Estás en una vista vieja del portal | Refresca con Ctrl+F5. El nuevo Foundry aparece como "Azure AI Foundry resource" en el create new. |
+| **No me deja crear el recurso Foundry** | Falta rol RBAC en el resource group | Pídele al instructor: `Azure AI Account Owner` en `rg-bci-workshop-participants` (rol nativo de Microsoft Foundry). |
+| **Veo opciones de Hub o AI Studio** | El toggle "New Foundry" está desactivado | Activa el toggle **"New Foundry"** en el banner superior del portal. Refresca con Ctrl+F5 si persiste. |
 | **Una conexión quedó "Disconnected"** | API key mal copiada o expirada | Borra la conexión y créala de nuevo con la key del handout (sin espacios al inicio/fin). |
 | **No tengo permisos para crear el agente** | Falta rol RBAC | Pídele al instructor: `Azure AI User` sobre tu propio proyecto. |
 | **El agente responde "I cannot help with that"** | Guardrail bloqueando un input legítimo | Revisá la severidad mínima en el guardrail. Bájala o desactivá la categoría que está sobreactuando. |
-| **SharePoint Grounding no encuentra nada** | La conexión SharePoint no apunta al sitio correcto | Valida en Connections que la URL del sitio corresponda al sitio con KB-IT cargado. |
 | **MCP create_incident devuelve 500** | Backend del MCP caído o sin permisos sobre Storage | Pídele al instructor que verifique que el backend del MCP detrás de APIM está corriendo y que la subscription key sigue activa. |
 | **El KB MCP devuelve "No results found"** | Query mal planteada o índice vacío | Reformulá la pregunta. Si persiste, valida que el índice `kb-security-helpdesk` tiene documentos en AI Search. |
 | **Workflow falla con "agent not found"** | Los nombres de los agentes en el YAML no coinciden con los creados | Verificá que en el YAML diga `name: helpdesk-triage` (sin sufijos como `-pv`). El workflow busca por nombre en el mismo proyecto. |
@@ -1405,15 +1366,15 @@ Frases listas para lanzar al playground de cada agente.
 
 | Tema | Link |
 |------|------|
-| Azure AI Foundry overview | https://learn.microsoft.com/azure/ai-foundry/ |
-| Prompt agents | https://learn.microsoft.com/azure/ai-foundry/agents/concepts/prompt-agents |
-| Workflow agents | https://learn.microsoft.com/azure/ai-foundry/agents/concepts/workflow-agents |
-| Power Fx en workflows | https://learn.microsoft.com/azure/ai-foundry/agents/how-to/power-fx |
+| Microsoft Foundry overview | https://learn.microsoft.com/azure/foundry/ |
+| Migrate from classic Foundry | https://learn.microsoft.com/azure/foundry/how-to/navigate-from-classic |
+| Prompt agents | https://learn.microsoft.com/azure/foundry/agents/overview |
+| Workflow agents | https://learn.microsoft.com/azure/foundry/agents/concepts/workflow |
+| Power Fx en workflows | https://learn.microsoft.com/azure/foundry/agents/how-to/power-fx |
 | Model Context Protocol (MCP) | https://modelcontextprotocol.io |
-| Agentic Retrieval (Foundry IQ) | https://learn.microsoft.com/azure/search/search-agentic-retrieval-concept |
-| SharePoint Grounding | https://learn.microsoft.com/azure/ai-foundry/agents/how-to/tools/sharepoint |
+| Agentic Retrieval (Foundry IQ) | https://learn.microsoft.com/azure/foundry/agents/concepts/what-is-foundry-iq |
 | Content Safety | https://learn.microsoft.com/azure/ai-services/content-safety/ |
-| Evaluators | https://learn.microsoft.com/azure/ai-foundry/concepts/evaluation-approach-gen-ai |
+| Evaluators | https://learn.microsoft.com/azure/foundry/observability/concepts/trace-agent-concept |
 
 ### SDKs y herramientas
 
@@ -1459,6 +1420,8 @@ Frases listas para lanzar al playground de cada agente.
 | 4.0 | Mayo 2026 | **Dos cambios estructurales mayores.** (1) **Conexiones distribuidas inline.** Se eliminó el Paso 1.5 que creaba las 5 conexiones de una sola vez al inicio. Cada conexión ahora se crea dentro del LAB del agente que la consume (SharePoint en LAB 2.2, KB MCP en LAB 2.3, Bing Web Search en LAB 2.4, MCP Incidents en LAB 2.5, MCP Requirements en LAB 3.2). Refleja mejor la disciplina real de proyectos: una conexión se crea cuando hay un agente que la va a usar, no antes. El LAB 1 quedó más liviano (10 min en vez de 15). (2) **Nuevo LAB 6 — Front-end.** Se intercaló entre el LAB 5 (Workflow) y el de Guardrails una nueva sección de despliegue de la aplicación web pre-construida. Se baja una imagen de Docker desde un Azure Container Registry compartido y se levanta en Azure Container Apps mediante un script Bash que ejecutan desde la Azure Cloud Shell. Incluye instrucciones para acceder a la Cloud Shell, subir el archivo del script directamente con el ícono de upload (sin copiar y pegar), editar las dos variables (`USUARIO` con dos dígitos como "07" y `FOUNDRY_ENDPOINT` desde Foundry → Overview → Project Endpoint), ejecutarlo y obtener la URL pública del front-end. Se renumeraron Guardrails → LAB 7 y Evaluators → LAB 8. La tabla de contenidos, los criterios de éxito y los tiempos del workshop se ajustaron para encajar el nuevo LAB en las 2 horas. |
 | 5.0 | Mayo 2026 | **Tres cambios principales.** (1) Se eliminó la sección "Lo que ya está pre-desplegado (compartido entre todos los participantes)" del bloque inicial — la infraestructura compartida queda implícita y sólo se mencionan los endpoints en cada conexión inline. (2) **Migración de los MCPs de Incidents y Requirements al nuevo gateway APIM** (`foundry-demos-apim.azure-api.net`) con autenticación por subscription key (`Ocp-Apim-Subscription-Key`). Se actualizaron las dos tablas de conexión inline (LAB 2.5.a y LAB 3.2.a) y los Server URL dentro del agente. Se ajustó el troubleshooting (header `Ocp-Apim-Subscription-Key` en vez de `x-functions-key`; mención de "backend del MCP detrás de APIM" en lugar de Function App). (3) **Reescritura del LAB 6 — Front-end** para reflejar el nuevo `descarga_app.sh` interactivo: el script ya no requiere edición con nano, ahora pide `USUARIO` y `FOUNDRY_ENDPOINT` por línea de comando con validación. Se renombró la variable de entorno (`FOUNDRY_ENDPOINT` → `FOUNDRY_PROJECT_ENDPOINT`), el ACR (`acrhelpdeskworkshop` → `acrhelpdeskdemo`), el nombre del Container App (`ca-helpdesk-usuario0XX` → `ca-helpdesk-web` fijo), y se eliminó el paso de role assignment de Managed Identity ya que el nuevo script no lo realiza (la app usa `DefaultAzureCredential` con el token de la sesión). |
 | 6.0 | Mayo 2026 | **Reescritura del LAB 2.3 — Knowledge Base KB-SEC.** Se eliminaron las dos sub-secciones que creaban una conexión MCP `Custom keys` directa a `srch-bci-workshop.search.windows.net` con `api-key` y agregaban la tool `knowledge_base_retrieve` con `Server URL` apuntando al endpoint MCP del knowledge base. En su reemplazo, el LAB ahora indica explícitamente que **el participante debe esperar al instructor** para una demo guiada en vivo de cómo se indexa el contenido KB-SEC en Azure AI Search (ingesta, chunking, embeddings con `text-embedding-3-large`, índice, publicación como Knowledge Base de Foundry IQ). Después de la demo, se establece una **conexión desde el proyecto del participante a un Foundry IQ central**, referenciando el **AI Search compartido del workshop** y el Knowledge Base `kb-helpdesk` ya publicado por el instructor. La tool se agrega ahora desde la pestaña Knowledge del agente (no como MCP custom). El archivo se renombra de `workshop-foundry-bci-vN.md` a `README.md` para que sea el documento principal del repositorio del workshop. |
+
+| 7.0 | Mayo 2026 | **Actualización a Microsoft Foundry (nuevo portal) + eliminación de SharePoint.** (1) **Rebrand**: "Azure AI Foundry" renombrado a "Microsoft Foundry" en todo el documento, alineado con el cambio de producto oficial de mayo 2026. (2) **Navegación actualizada al nuevo portal**: todas las referencias al menú lateral plano migradas al nuevo sistema de navegación por secciones superiores (Home / Discover / Build / Operate / Docs). Equivalencias: Agents → Build → Agents; Models + endpoints → Build → Models; Evaluation → Build → Evaluations; Guardrails + controls → Operate → Compliance; Management center → Operate → Admin. Tour del portal y nota en Bloque 0 actualizados. LAB 1 Paso 1.2 actualizado (sin menú Hub). LAB 1 Paso 1.4 y conexiones actualizados. (3) **Eliminación de SharePoint Grounding (KB-IT)**: se suprime el LAB 2.2 completo; el agente de Incidentes pasa de 4 a 3 tools (KB-SEC vía Foundry IQ, Web Search, MCP create_incident). Pasos 2.3→2.2, 2.4→2.3, 2.5→2.4, 2.6→2.5 renumerados. Tabla de agentes, prompt del agente (una sola KB), escenarios de prueba end-to-end, dataset de evaluación, sección de Cierre, Apéndice A (sin sección KB-IT), Apéndice B (sin fila SharePoint) y Apéndice C (links actualizados a /azure/foundry/) actualizados. |
 
 ---
 
