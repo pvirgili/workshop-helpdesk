@@ -374,32 +374,35 @@ Vamos a conectar al agente con **Foundry IQ** — un índice Azure AI Search que
 
 Una vez que el instructor termine la demo, vamos a **establecer una conexión desde tu proyecto de Foundry hacia el Foundry IQ central del workshop**, referenciando el AI Search compartido (no creas uno propio — todos los participantes apuntan al mismo recurso).
 
-#### 2.2.a — Crear la conexión a Foundry IQ (AI Search central del workshop)
+#### 2.2.a — Conectar tu proyecto a Foundry IQ (AI Search central del workshop)
 
-1. En tu proyecto, selecciona **Operate** en la navegación superior → **Admin** → selecciona tu proyecto → **Connections → "+ New connection"**.
-   > Alternativa rápida: al agregar la tool en el paso siguiente, el portal ofrece el botón **"+ New connection"** inline.
-2. Elegí el tipo **"Azure AI Search"** (también puede aparecer como "Foundry IQ / Knowledge").
-3. Configuración (los valores exactos los entrega el instructor en el handout):
+La conexión se realiza desde el propio menú **Knowledge** del proyecto, no desde Connections.
+
+1. En el menú lateral izquierdo del proyecto, haz clic en **Knowledge**.
+2. Se abre la página **Foundry IQ** *(Preview)*, con el mensaje *"Ground your agent in enterprise knowledge — Connect to an AI Search resource to get started"*.
+3. Completa el formulario de conexión:
 
 | Campo | Valor |
 |-------|-------|
-| **Name** | `foundry-iq-kb-sec` |
-| **Azure AI Search resource** | el recurso **central** del workshop (compartido — lo selecciona el instructor en el dropdown, o se pega el endpoint del handout) |
-| **Knowledge Base** | `kb-helpdesk` (la que el instructor publicó en la demo) |
-| **Authentication** | `API key` o `Microsoft Entra ID`, según indique el instructor |
+| **Azure AI Search resource** | Selecciona el recurso **central** del workshop desde el dropdown (el instructor te indica el nombre exacto) |
+| **Auth Type** | `Project Managed Identity` (valor por defecto — déjalo así) |
 
-> ℹ️ **Importante:** todos los participantes nos conectamos al **mismo** AI Search y al **mismo** Knowledge Base. No creas tu propio índice — eso lo vimos en la demo del instructor con fines didácticos.
+4. Haz clic en **Connect**.
+   > Si el recurso AI Search no aparece en el dropdown, haz clic en **"Create new resource"** para registrar la conexión manualmente con el endpoint que te proporciona el instructor.
+
+> ℹ️ **Importante:** todos los participantes nos conectamos al **mismo** AI Search. No creas tu propio recurso — eso lo vimos en la demo del instructor con fines didácticos.
 
 #### 2.2.b — Agregar la Knowledge Base como tool del agente
 
-1. Volvé al agente de Incidentes y entrá a la pestaña **"Knowledge"** (o **"Tools" → "+ Add knowledge"** según la vista del portal).
-2. Seleccioná **"Foundry IQ / Azure AI Search"**.
-3. **Connection:** `foundry-iq-kb-sec` (la que acabás de crear).
-4. **Knowledge Base:** `kb-helpdesk`.
-5. **Description:** `Knowledge Base de Ciberseguridad de BCI (KB-SEC) vía Foundry IQ — Agentic Retrieval sobre Azure AI Search`.
-6. Hacé clic en **"Add"** y guardá el agente.
+Una vez conectado el recurso AI Search, Foundry IQ muestra las Knowledge Bases disponibles bajo la pestaña **Knowledge bases**.
 
-7. **Probá** con `Recibí un mail sospechoso del banco y creo que hice clic en un link`. El agente debería consultar Foundry IQ, encontrar `KB-SEC-001-Phishing`, y guiar al usuario (desconectar red, cambiar contraseñas, reportar).
+1. Desde la página **Foundry IQ**, selecciona la pestaña **Knowledge bases**.
+2. Elige la Knowledge Base `kb-helpdesk` (la que el instructor publicó en la demo) y haz clic en **"Add to agent"** (o **"Use"**).
+   > Alternativa: desde el agente de Incidentes → pestaña **"Tools"** → **"+ Add knowledge"** → selecciona **"Foundry IQ"** → elige `kb-helpdesk`.
+3. **Description:** `Knowledge Base de Ciberseguridad de BCI (KB-SEC) vía Foundry IQ — Agentic Retrieval sobre Azure AI Search`.
+4. Haz clic en **"Add"** y guarda el agente.
+
+5. **Prueba** con `Recibí un mail sospechoso del banco y creo que hice clic en un link`. El agente debería consultar Foundry IQ, encontrar `KB-SEC-001-Phishing`, y guiar al usuario (desconectar red, cambiar contraseñas, reportar).
 
 ### Paso 2.3 — Agregar Web Search
 
