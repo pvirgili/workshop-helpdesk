@@ -9,6 +9,8 @@
 > **Plataforma:** [https://ai.azure.com](https://ai.azure.com)
 > **Versión:** 7.0 — Mayo 2026
 
+[🇺🇸 English version](en/README.md)
+
 ---
 
 ## Tabla de contenidos
